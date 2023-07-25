@@ -23,29 +23,64 @@ async function init() {
 /// Movies ///
 
 export const getMovies = async ({
+  query,
   page = 1,
   limit = 10
 }: {
-  page?: number
-  limit?: number
+  query?: string
+  page: number
+  limit: number
 }) => {
   try {
     if (!movies) await init()
 
     const skip = (page - 1) * limit
 
-    const result = await movies
-      .find({
-        poster: {
-          $exists: true
+    const pipeline: PipelineStage[] = [{ $skip: skip }, { $limit: limit }]
+
+    if (query) {
+      pipeline.unshift({
+        $search: {
+          index: 'search',
+          text: {
+            query,
+            fuzzy: {
+              maxEdits: 1,
+              prefixLength: 3,
+              maxExpansions: 50
+            },
+            path: {
+              wildcard: '*'
+            }
+          }
         }
       })
-      .limit(limit)
-      .skip(skip)
-      .toArray()
+    }
+
+    const result = await movies.aggregate(pipeline).toArray()
 
     return { movies: result }
   } catch (error) {
     return { error }
   }
 }
+
+type PipelineStage =
+  | {
+      $search: {
+        index: string
+        text: {
+          query: string
+          fuzzy: {}
+          path: {
+            wildcard: string
+          }
+        }
+      }
+    }
+  | {
+      $skip: number
+    }
+  | {
+      $limit: number
+    }

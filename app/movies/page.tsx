@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import Link from 'next/link'
 import Image from 'next/image'
 import { getMovies } from '@/lib/mongo/movies'
+import Search from './search'
 
 const Page = async ({
   searchParams
@@ -13,17 +14,30 @@ const Page = async ({
   const limit =
     typeof searchParams.limit === 'string' ? Number(searchParams.limit) : 10
 
-  const { movies } = await getMovies({ page, limit })
+  const search =
+    typeof searchParams.search === 'string' ? searchParams.search : undefined
+
+  const { movies } = await getMovies({ page, limit, query: search })
 
   return (
     <section className='py-24'>
       <div className='container'>
-        <div className='mb-12 flex items-center justify-between'>
+        <div className='mb-12 flex items-center justify-between gap-x-72'>
           <h1 className='text-3xl font-bold'>Movies</h1>
+
+          <div className='grow'>
+            <Search />
+          </div>
 
           <div className='flex space-x-6'>
             <Link
-              href={`/movies?page=${page > 1 ? page - 1 : 1}`}
+              href={{
+                pathname: '/movies',
+                query: {
+                  ...(search ? { search } : {}),
+                  page: page > 1 ? page - 1 : 1
+                }
+              }}
               className={clsx(
                 'rounded border bg-gray-100 px-3 py-1 text-sm text-gray-800',
                 page <= 1 && 'pointer-events-none opacity-50'
@@ -32,7 +46,13 @@ const Page = async ({
               Previous
             </Link>
             <Link
-              href={`/movies?page=${page + 1}`}
+              href={{
+                pathname: '/movies',
+                query: {
+                  ...(search ? { search } : {}),
+                  page: page + 1
+                }
+              }}
               className='rounded border bg-gray-100 px-3 py-1 text-sm text-gray-800'
             >
               Next
