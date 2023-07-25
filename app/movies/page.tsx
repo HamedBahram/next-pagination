@@ -22,11 +22,11 @@ const Page = async ({
   return (
     <section className='py-24'>
       <div className='container'>
-        <div className='mb-12 flex items-center justify-between gap-x-72'>
+        <div className='mb-12 flex items-center justify-between gap-x-16'>
           <h1 className='text-3xl font-bold'>Movies</h1>
 
           <div className='grow'>
-            <Search />
+            <Search search={search} />
           </div>
 
           <div className='flex space-x-6'>
