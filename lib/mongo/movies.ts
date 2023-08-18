@@ -28,8 +28,8 @@ export const getMovies = async ({
   limit = 10
 }: {
   query?: string
-  page: number
-  limit: number
+  page?: number
+  limit?: number
 }) => {
   try {
     if (!movies) await init()
@@ -59,7 +59,9 @@ export const getMovies = async ({
 
     const result = await movies.aggregate(pipeline).toArray()
 
-    return { movies: result }
+    await new Promise(resolve => setTimeout(resolve, 750))
+
+    return { movies: JSON.parse(JSON.stringify(result)) }
   } catch (error) {
     return { error }
   }
