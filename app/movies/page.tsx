@@ -1,10 +1,9 @@
-import { Suspense } from 'react'
+import { v4 as uuid } from 'uuid'
 
 import { fetchMovies } from './actions'
 
 import Search from './search'
-import Movies from './movies'
-import Trigger from './trigger'
+import InfiniteScrollMovies from './infinite-scroll-movies'
 
 const Page = async ({
   searchParams
@@ -28,11 +27,11 @@ const Page = async ({
         </div>
 
         <ul
+          key={uuid()}
           role='list'
           className='grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 md:grid-cols-3 lg:grid-cols-4 xl:gap-x-8'
         >
-          <Movies movies={movies} />
-          <Trigger search={search} />
+          <InfiniteScrollMovies search={search} initialMovies={movies} />
         </ul>
       </div>
     </section>
