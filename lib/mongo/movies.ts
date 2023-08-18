@@ -57,12 +57,18 @@ export const getMovies = async ({
       })
     }
 
+    await sleep(1000)
+
     const result = await movies.aggregate(pipeline).toArray()
 
     return { movies: result }
   } catch (error) {
     return { error }
   }
+}
+
+async function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 type PipelineStage =

@@ -1,8 +1,14 @@
 import clsx from 'clsx'
 import Link from 'next/link'
-import Image from 'next/image'
+import { Suspense } from 'react'
+import { v4 as uuid } from 'uuid'
+
 import { getMovies } from '@/lib/mongo/movies'
+
 import Search from './search'
+import Movies from './movies'
+import Await from './await'
+import Skeleton from './skeleton'
 
 const Page = async ({
   searchParams
@@ -17,10 +23,10 @@ const Page = async ({
   const search =
     typeof searchParams.search === 'string' ? searchParams.search : undefined
 
-  const { movies } = await getMovies({ page, limit, query: search })
+  const promise = getMovies({ page, limit, query: search })
 
   return (
-    <section className='py-24'>
+    <section className='py-24' key={uuid()}>
       <div className='container'>
         <div className='mb-12 flex items-center justify-between gap-x-16'>
           <h1 className='text-3xl font-bold'>Movies</h1>
@@ -60,31 +66,11 @@ const Page = async ({
           </div>
         </div>
 
-        <ul
-          role='list'
-          className='grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-6 md:grid-cols-3 lg:grid-cols-4 xl:gap-x-8'
-        >
-          {movies?.map(movie => (
-            <li key={movie._id.toString()} className='relative'>
-              <div className='group block aspect-square w-full overflow-hidden rounded-lg bg-gray-100'>
-                <Image
-                  src={movie.poster}
-                  alt=''
-                  className='object-cover group-hover:opacity-75'
-                  width={300}
-                  height={300}
-                />
-              </div>
-              <p className='mt-2 block truncate font-medium'>{movie.title}</p>
-              <p className='block text-sm font-medium text-gray-500'>
-                {movie.cast?.join(', ')}
-              </p>
-              <p className='block text-sm font-medium text-gray-500'>
-                {movie.year}
-              </p>
-            </li>
-          ))}
-        </ul>
+        <Suspense fallback={<Skeleton />}>
+          <Await promise={promise}>
+            {({ movies }) => <Movies movies={movies} />}
+          </Await>
+        </Suspense>
       </div>
     </section>
   )
