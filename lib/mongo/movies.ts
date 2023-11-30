@@ -16,9 +16,10 @@ async function init() {
   }
 }
 
-;(async () => {
-  await init()
-})()
+// Avoid exhausting the connection
+// ;(async () => {
+//   await init()
+// })()
 
 /// Movies ///
 
